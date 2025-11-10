@@ -31,7 +31,6 @@ export const PredictionCard = () => {
 
   // 3. (渲染)
   return (
-    // (使用 Tailwind v4 美化)
     <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-linear-to-b from-[#142047]/50 to-transparent">
       {/* 标题 */}
       <div className="flex items-center text-sm text-gray-400 mb-2">

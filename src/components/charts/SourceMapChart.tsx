@@ -1,54 +1,51 @@
+// [File: src/components/charts/SourceMapChart.tsx]
+
 /**
  * @file src/components/charts/SourceMapChart.tsx
  * @module SourceMapChart
- * @description (组件) Echarts 地图热力图
+ * @description (组件) Echarts 地图热力图 (V3.3 - 纯净热力块版)
  * * 职责:
  * 1. 消费 zustand store 中的 `mapData` (API 4)。
- * 2. (核心) 异步加载 `public/map/china.json` 并注册 Echarts 地图。
+ * 2. 异步加载（已替换的）新 `xuzhou.json` 并注册。
+ * 3. (核心) 遵循 Echarts 官方示例 (香港)，
+ * 仅使用 'series.type: "map"' 统一渲染地块、标签和热力颜色。
+ * 4. (核心) 移除了所有 'geo' 组件 和 'effectScatter' (涟漪点) 相关代码。
  */
 
 import { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { useDataScreenStore } from "../../stores/useDataScreenStore";
 import * as echarts from "echarts";
-import axios from "axios"; // (用于获取 china.json)
+import axios from "axios"; // (用于获取 xuzhou.json)
 
 /**
  * 车辆来源 Echarts 地图热力图组件
  * @returns {React.ReactElement}
  */
 export const SourceMapChart = () => {
-  // 1. (Zustand) 获取 [接口 4] 的数据
+  // 1. (Zustand)
   const { mapData } = useDataScreenStore();
 
   // 2. (State)
-  /** 状态：用于跟踪地图 JSON 是否已加载并注册 */
   const [isMapRegistered, setIsMapRegistered] = useState(false);
 
-  // 3. (React Hook)
-  /**
-   * 异步加载和注册地图 GeoJSON
-   * * Why: Echarts 必须先 "registerMap" 才能使用 "geo" 组件。
-   */
+  // 3. (React Hook) 注册地图
   useEffect(() => {
-    // (防止重复注册)
-    if (echarts.getMap("china")) {
+    if (echarts.getMap("xuzhou")) {
       setIsMapRegistered(true);
       return;
     }
-
-    // (从 public/ 文件夹获取)
     axios
-      .get("/map/china.json")
+      .get("/map/xuzhou.json") // (确保这里加载的是你新找到的正确文件)
       .then((response) => {
-        echarts.registerMap("china", response.data);
+        echarts.registerMap("xuzhou", response.data);
         setIsMapRegistered(true);
-        console.log('Echarts Map "china" 注册成功');
+        console.log('Echarts Map "xuzhou" 注册成功');
       })
       .catch((error) => {
-        console.error('Echarts Map "china.json" 加载失败:', error);
+        console.error('Echarts Map "xuzhou.json" 加载失败:', error);
       });
-  }, []); // 依赖项为空，仅运行一次
+  }, []);
 
   // 4. (Echarts Option)
   const option = {
@@ -59,7 +56,7 @@ export const SourceMapChart = () => {
     // (视觉映射)
     visualMap: {
       min: 0,
-      max: 20000, // (Mock)
+      max: 20000,
       left: "left",
       top: "bottom",
       text: ["高", "低"],
@@ -72,35 +69,53 @@ export const SourceMapChart = () => {
         color: "#B5C5DB",
       },
     },
-    // (核心) 地理坐标系
-    geo: {
-      map: "china", // 必须和 registerMap 的名字一致
-      roam: false, // (禁止缩放)
-      zoom: 1.2,
-      layoutCenter: ["50%", "50%"],
-      layoutSize: "100%",
-      itemStyle: {
-        areaColor: "#1A3A7B",
-        borderColor: "#4A90E2",
-      },
-      emphasis: {
-        itemStyle: {
-          areaColor: "#FFA500", // (高亮时颜色)
-        },
-      },
-    },
+
+    // (V3.3) geo: { ... }  <-- (已删除)
+
     series: [
       {
         name: "车辆来源",
-        type: "map", // (类型为地图)
-        geoIndex: 0, // (关联到上面的 geo)
-        data: mapData, // (绑定 zustand store 数据)
+        type: "map",
+        map: "xuzhou",
+
+        // (如果需要 nameMap，取消此行注释)
+        // nameMap: xuzhouNameMap,
+
+        roam: false,
+        zoom: 1.2,
+        layoutCenter: ["50%", "50%"],
+        layoutSize: "100%",
+
+        itemStyle: {
+          areaColor: "#1A3A7B",
+          borderColor: "#4A90E2",
+        },
+
+        label: {
+          show: true,
+          color: "#ffffff",
+          fontSize: 10,
+        },
+
+        emphasis: {
+          itemStyle: {
+            areaColor: "#FFA500",
+          },
+          label: {
+            show: true,
+            color: "#ffffff",
+          },
+        },
+        data: mapData,
       },
+      // [!code focus:start]
+      // (V3.3)
+      // 'effectScatter' (涟漪点) series 已被完全删除
+      // [!code focus:end]
     ],
   };
 
   // 5. (渲染)
-  // (必须等待 map 注册成功后才渲染，否则 Echarts 会报错)
   return isMapRegistered ? (
     <ReactECharts
       option={option}
