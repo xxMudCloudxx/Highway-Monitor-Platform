@@ -1,4 +1,14 @@
-// src/pages/QueryPage.tsx
+/**
+ * @file src/pages/QueryPage.tsx
+ * @module QueryPage
+ * @description (页面) 交互式查询
+ *
+ * 职责:
+ * 1. 渲染 Antd 的 Form, Table, Pagination。
+ * 2. (核心) 绑定 zustand store (useQueryPageStore)。
+ * 3. (核心) 将用户输入 (表单、分页) 转换为 store 的 action (调用 API 1)。
+ */
+
 import { useEffect } from "react";
 import {
   Form,
@@ -7,17 +17,20 @@ import {
   DatePicker,
   Table,
   Pagination,
-  ConfigProvider, // 用于切换暗黑主题
-  theme, // antd 主题
   Space,
-  App as AntdApp, // 用于显示 message/notification，可选
+  App as AntdApp, // (用于显示 message/notification)
 } from "antd";
 import { useQueryPageStore } from "../stores/useQueryPageStore";
 import type { TableProps } from "antd";
-import type { Dayjs } from "dayjs"; // antd 5 依赖 dayjs
+import type { Dayjs } from "dayjs"; // (antd 5 依赖 dayjs)
 
-// 1. (重要) 定义我们 API.md (接口 1) 中的数据记录类型
-//    (基于 交通流量数据字段说明.png)
+// --- 1. (类型定义) ---
+
+/**
+ * @interface TrafficRecord
+ * @description [接口 1] 返回数据中 `records` 数组的单条记录格式
+ * (字段基于 交通流量数据字段说明.png)
+ */
 interface TrafficRecord {
   GCXH: number;
   KKMC: string;
@@ -27,8 +40,12 @@ interface TrafficRecord {
   CPFSF: string;
 }
 
-// 2. (核心) 定义 Antd Table 的列
-//    (这完全参考 高成-前端(交互式查询页面).pdf.pdf 和 image_4f4c27.jpg 的表格)
+// --- 2. (Antd Table 定义) ---
+
+/**
+ * (核心) Antd Table 的列定义
+ * (完全参考 高成-前端(交互式查询页面).pdf.pdf 和 image_4f4c27.jpg 的表格)
+ */
 const columns: TableProps<TrafficRecord>["columns"] = [
   {
     title: "序号",
@@ -70,21 +87,31 @@ const columns: TableProps<TrafficRecord>["columns"] = [
 
 const { RangePicker } = DatePicker;
 
-// 3. (核心) 页面组件
+// --- 3. (React 组件) ---
+
+/**
+ * 交互式查询页面 (业务组件)
+ * (此组件不含 Antd Provider，由 Wrapper 提供)
+ * @returns {React.ReactElement}
+ */
 export const QueryPage = () => {
-  // 3.1. 从 Zustand Store 中获取所有状态和动作
+  // 3.1. (Zustand) 获取所有状态和动作
   const { params, data, loading, setParams, fetchData } = useQueryPageStore();
 
-  // 3.2. 获取 Antd Form 的实例
+  // 3.2. (Antd Form) 获取 Form 实例
   const [form] = Form.useForm();
 
-  // 3.3. 组件首次加载时，获取一次数据
+  // 3.3. (React Hook)
   useEffect(() => {
+    // Why: 页面首次加载时，获取一次默认数据
     fetchData();
-  }, [fetchData]); // 依赖项是 zustand action，只会执行一次
+  }, [fetchData]); // (依赖项是 zustand action，仅在挂载时运行一次)
 
-  // 3.4. (处理查询)
-  // 当表单点击 "查询" 按钮时
+  /**
+   * (处理查询) Antd Form 提交处理函数
+   *
+   * @param {object} values - 表单原始值 (包含 dayjs 对象)
+   */
   const onFinish = (values: {
     hphm?: string;
     kkmc?: string;
@@ -101,44 +128,51 @@ export const QueryPage = () => {
       endTime = timeRange[1].format("YYYY-MM-DD HH:mm:ss");
     }
 
-    // (关键) 更新 store 中的 params，并重置到第1页，然后触发 fetchData
+    // (关键) 更新 store 中的 params，并重置到第1页
     setParams({
       kkmc: kkmc || null,
       hphm: hphm || null,
       startTime: startTime,
       endTime: endTime,
-      page: 1, // (重要) 新的搜索总是从第 1 页开始
+      page: 1, // Why: 新的搜索总是从第 1 页开始
     });
 
-    // fetchData 会自动从 store 中读取最新的 params
+    // (fetchData 会自动从 store 中读取最新的 params)
     fetchData();
   };
 
-  // 3.5. (处理重置)
+  /**
+   * (处理重置) Antd Form 重置处理函数
+   */
   const onReset = () => {
-    form.resetFields(); // 清空 antd 表单
-    // (关键) 将 store 中的 params 也重置，并触发 fetchData
+    form.resetFields(); // (清空 antd 表单)
+    // (关键) 将 store 中的 params 也重置
     setParams({
       kkmc: null,
       hphm: null,
       startTime: null,
       endTime: null,
       page: 1,
-      limit: 10, // 假设 limit 保持不变
+      limit: 10,
     });
     fetchData();
   };
 
-  // 3.6. (处理分页)
+  /**
+   * (处理分页) Antd Pagination 切换处理函数
+   *
+   * @param {number} page - 目标页码
+   * @param {number} pageSize - 目标每页条数
+   */
   const onPaginationChange = (page: number, pageSize: number) => {
-    // (关键) 更新 store 中的 page 和 limit，并触发 fetchData
+    // (关键) 更新 store 中的 page 和 limit
     setParams({ page, limit: pageSize });
     fetchData();
   };
 
-  // 4. 渲染 UI
+  // 4. (渲染)
   return (
-    <div className="p-5 min-h-screen">
+    <div className="p-5 min-h-full">
       <h1 className="text-2xl mb-4 text-white">交互式查询 (Mock)</h1>
 
       {/* 4.1. 搜索表单 (参考 image_4f4c27.jpg) */}
@@ -167,15 +201,15 @@ export const QueryPage = () => {
         columns={columns}
         dataSource={data.records}
         loading={loading}
-        rowKey="GCXH" // 使用 GCXH 作为 key
-        pagination={false} // (重要) 我们使用外部独立的分页器
+        rowKey="GCXH" // (使用 GCXH 作为 key)
+        pagination={false} // Why: 我们使用外部独立的分页器
         bordered
         className="mb-4 mt-4"
       />
 
       {/* 4.3. 独立分页器 (参考 高成.pdf) */}
       <Pagination
-        showSizeChanger // 允许切换每页条数
+        showSizeChanger // (允许切换每页条数)
         current={params.page}
         pageSize={params.limit}
         total={data.total}
@@ -186,23 +220,17 @@ export const QueryPage = () => {
   );
 };
 
-// 5. (推荐) 使用 Antd App 包裹，并启用暗黑主题
+/**
+ * (Wrapper) 使用 Antd App 包裹，并启用暗黑主题
+ * (Why: AntdApp 用于 message, notification 等弹出)
+ * @returns {React.ReactElement}
+ */
 const QueryPageWrapper = () => (
-  <ConfigProvider
-    theme={{
-      algorithm: theme.darkAlgorithm, // 启用暗黑主题
-    }}
-  >
-    <AntdApp>
-      {" "}
-      {/* 必须包裹，否则 message, notification 等无法使用 */}
-      <div className="bg-[#141414] min-h-screen">
-        {" "}
-        {/* 暗黑背景 */}
-        <QueryPage />
-      </div>
-    </AntdApp>
-  </ConfigProvider>
+  <AntdApp>
+    <div className="bg-[#141414] min-h-full">
+      <QueryPage />
+    </div>
+  </AntdApp>
 );
 
 export default QueryPageWrapper;

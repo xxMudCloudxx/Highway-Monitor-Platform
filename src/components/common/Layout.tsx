@@ -1,26 +1,43 @@
-// src/components/common/Layout.tsx
+/**
+ * @file src/components/common/Layout.tsx
+ * @module AppLayout
+ * @description (组件) 全局根布局
+ * * 职责:
+ * 1. 提供顶部导航栏 (NavLink)，用于在 "大屏" 和 "查询页" 间切换。
+ * 2. 提供 <Outlet /> (react-router-dom) 路由出口。
+ * 3. (关键) 全局包裹 Antd ConfigProvider，统一设置暗黑主题。
+ */
+
 import { Outlet, NavLink } from "react-router-dom";
 import { ConfigProvider, theme } from "antd";
 
+/**
+ * 全局根布局组件
+ * @returns {React.ReactElement}
+ */
 export const AppLayout = () => {
-  // NavLink
+  /**
+   * (Helper) NavLink 动态样式
+   * @param {object} props
+   * @param {boolean} props.isActive - react-router 注入的
+   * @returns {string} Tailwind v4 样式
+   */
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `px-4 py-2 rounded-md ${
       isActive
-        ? "bg-cyan-600 text-white"
-        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+        ? "bg-cyan-600 text-white" // (激活)
+        : "text-gray-300 hover:bg-gray-700 hover:text-white" // (未激活)
     }`;
 
   return (
-    // (重要) 我们在根布局上启用 Antd 的暗黑主题
-    // 这样 QueryPage 就不需要再次包裹 ConfigProvider 了
+    // 3. (Antd) 全局暗黑主题
     <ConfigProvider
       theme={{
         algorithm: theme.darkAlgorithm,
       }}
     >
       <div className="flex flex-col h-screen w-screen bg-[#141414]">
-        {/* 顶部导航栏 */}
+        {/* 1. 顶部导航栏 */}
         <nav className="w-full h-12 bg-[#1f1f1f] flex items-center p-4 shadow-lg z-10">
           <h1 className="text-xl text-cyan-400 font-bold mr-6">
             高速公路监控平台
@@ -35,10 +52,9 @@ export const AppLayout = () => {
           </div>
         </nav>
 
-        {/* 路由出口：页面内容将在这里渲染 */}
-        {/* 我们让内容区域占满剩余高度 */}
+        {/* 2. 路由出口：(页面内容将在这里渲染) */}
         <main className="flex-1 overflow-auto">
-          <Outlet /> {/* DataScreen 或 QueryPage 将在这里显示 */}
+          <Outlet /> {/* (DataScreen 或 QueryPage 将在这里显示) */}
         </main>
       </div>
     </ConfigProvider>

@@ -1,26 +1,38 @@
-// src/components/common/RealtimeWarningList.tsx
+/**
+ * @file src/components/common/RealtimeWarningList.tsx
+ * @module RealtimeWarningList
+ * @description (组件) 大屏滚动列表: 实时套牌车告警
+ * * 职责:
+ * 1. 消费 zustand store 中的 `realtimeWarnings` (API 5)。
+ * 2. 渲染一个自动向上无缝滚动的列表。
+ */
+
 import { useDataScreenStore } from "../../stores/useDataScreenStore";
-import { BellIcon } from "@heroicons/react/24/solid"; // 我们可以用 heroicons 增加点缀
+import { BellIcon } from "@heroicons/react/24/solid";
 
-// (如果你还没装 heroicons: pnpm add @heroicons/react)
-
+/**
+ * 实时套牌车告警 (API 5) 滚动列表
+ * @returns {React.ReactElement}
+ */
 export const RealtimeWarningList = () => {
-  // 1. 从 zustand store 中获取实时告警数据
+  // 1. (Zustand) 获取 [接口 5] 数据
   const { realtimeWarnings } = useDataScreenStore();
 
-  // (如果列表项太少，滚动效果会不好，Mock 时可以增加 mock/algoApp.ts 的返回数量)
-
-  // 2. (关键) 为了实现无缝滚动，我们将列表数据复制一份
+  // 2. (关键)
+  // Why: 为了实现无缝滚动，我们将列表数据复制一份。
+  // (当第一份滚动到末尾时，第二份无缝衔接，然后动画重置)
   const displayWarnings = [...realtimeWarnings, ...realtimeWarnings];
 
   return (
     <div className="w-full h-full overflow-hidden">
-      {/* 3. 使用 animation-play-state 来实现 hover 时暂停 */}
+      {/* 3. (Tailwind v4)
+        (animate-scroll-y 是在 tailwind.config.js 中定义的)
+        (hover:[animation-play-state:paused] 实现了 Hober 暂停)
+       */}
       <div
         className="animate-scroll-y hover:[animation-play-state:paused]"
-        // 我们需要内联 style 来动态设置动画时长，防止数据太少时滚动过快
-        // (这里我们用 30s 固定值，你也可以根据 realtimeWarnings.length 动态计算)
-        style={{ animationDuration: "30s" }}
+        // (动态设置动画时长，防止数据太少时滚动过快)
+        style={{ animationDuration: `${realtimeWarnings.length * 2.5}s` }} // (e.g., 10条数据 25s)
       >
         {displayWarnings.map((warning, index) => (
           <div

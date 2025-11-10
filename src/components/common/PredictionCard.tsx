@@ -1,12 +1,26 @@
-// src/components/common/PredictionCard.tsx
-import { useDataScreenStore } from "../../stores/useDataScreenStore";
-import { ChartBarSquareIcon, ClockIcon } from "@heroicons/react/24/outline"; // (pnpm add @heroicons/react)
+/**
+ * @file src/components/common/PredictionCard.tsx
+ * @module PredictionCard
+ * @description (组件) 大屏数字卡片: 未来流量预测
+ * * 职责:
+ * 1. 消费 zustand store 中的 `prediction` (API 6)。
+ * 2. 渲染一个数字展示卡片。
+ */
 
+import { useDataScreenStore } from "../../stores/useDataScreenStore";
+import { ChartBarSquareIcon, ClockIcon } from "@heroicons/react/24/outline";
+
+/**
+ * 未来流量预测 (API 6) 数字卡片
+ * @returns {React.ReactElement}
+ */
 export const PredictionCard = () => {
-  // 1. 从 zustand store 中获取 [接口 6] 的数据
+  // 1. (Zustand) 获取 [接口 6] 的数据
   const { prediction } = useDataScreenStore();
 
-  // 2. 简单的 Loading 态
+  // 2. (Loading 态)
+  // (Why: prediction 默认为 null，在首次 fetch
+  // 完成前显示 Loading)
   if (!prediction) {
     return (
       <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -15,8 +29,9 @@ export const PredictionCard = () => {
     );
   }
 
+  // 3. (渲染)
   return (
-    // (我们使用 Tailwind v4 来美化这个卡片)
+    // (使用 Tailwind v4 美化)
     <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-linear-to-b from-[#142047]/50 to-transparent">
       {/* 标题 */}
       <div className="flex items-center text-sm text-gray-400 mb-2">
