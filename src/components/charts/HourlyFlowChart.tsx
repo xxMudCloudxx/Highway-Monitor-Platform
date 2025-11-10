@@ -1,7 +1,7 @@
 // src/components/charts/HourlyFlowChart.tsx
 import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
-import { useDataScreenStore } from "../../store/useDataScreenStore";
+import { useDataScreenStore } from "../../stores/useDataScreenStore";
 
 // 这是一个可复用的图表Wrapper，你可以添加 loading 等...
 const BaseChartWrapper: React.FC<{

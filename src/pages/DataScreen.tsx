@@ -1,57 +1,55 @@
 // src/pages/DataScreen.tsx
 import { useEffect } from "react";
+import { useDataScreenStore } from "../stores/useDataScreenStore";
 import { HourlyFlowChart } from "../components/charts/HourlyFlowChart";
-import { useDataScreenStore } from "../store/useDataScreenStore";
+import { KkmcRankingChart } from "../components/charts/KkmcRankingChart";
+import { SourceMapChart } from "../components/charts/SourceMapChart";
 
-// 这是我们的数据大屏
 export const DataScreen = () => {
-  // 1. 从 store 中获取 fetchAllData 这个 action
   const { fetchAllData } = useDataScreenStore();
 
   useEffect(() => {
-    // 2. 页面首次加载时，立即执行一次数据获取
+    // ... (定时器逻辑保持不变)
     fetchAllData();
-
-    // 3. (核心需求) 设置定时器，实现“每半分钟一次对结果进行刷新”
-    //    (参考: 大数据存储案例设计要求.doc, 课设项目策划书.md)
-    const timerId = setInterval(() => {
-      console.log("触发 30s 定时刷新...");
-      fetchAllData();
-    }, 30 * 1000); // 30秒
-
-    // 4. (重要) 组件卸载时，必须清除定时器，防止内存泄漏
-    return () => {
-      clearInterval(timerId);
-    };
-
-    // 注意：useEffect 的依赖项为空数组，确保此 effect 仅在挂载时运行一次
+    const timerId = setInterval(() => fetchAllData(), 30 * 1000); // 30秒刷新
+    return () => clearInterval(timerId);
   }, [fetchAllData]);
 
   return (
-    <div
-      style={{
-        background: "#0F1A3D", // 大屏的深色背景
-        color: "white",
-        width: "100vw",
-        height: "100vh",
-        padding: "20px",
-        boxSizing: "border-box",
-      }}
-    >
-      <h1>高速公路实时车流监控</h1>
+    <div className="bg-[#0F1A3D] text-white w-screen h-screen p-5 box-border overflow-hidden">
+      <h1 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
+        高速公路实时车流监控
+      </h1>
 
-      {/* 我们把图表放在一个固定大小的容器里 */}
-      <div
-        style={{
-          width: "500px",
-          height: "300px",
-          border: "1px solid #3B4B6F",
-        }}
-      >
-        <HourlyFlowChart />
+      {/* 使用 Flex 布局 */}
+      <div className="flex w-full h-[calc(100%-50px)] gap-4">
+        {/* 左侧容器 (占 1/3 宽度) */}
+        <div className="w-1/3 flex flex-col gap-4">
+          <div className="flex-1 border border-[#3B4B6F] bg-[#142047]/50 p-2">
+            <h2 className="text-lg text-center">24小时流量曲线</h2>
+            <div className="h-[calc(100%-32px)]">
+              <HourlyFlowChart />
+            </div>
+          </div>
+
+          <div className="flex-1 border border-[#3B4B6F] bg-[#142047]/50 p-2">
+            <h2 className="text-lg text-center">卡口流量 Top 10</h2>
+            <div className="h-[calc(100%-32px)]">
+              <KkmcRankingChart />
+            </div>
+          </div>
+        </div>
+
+        {/* 右侧容器 (占 2/3 宽度，给地图更大空间) */}
+        <div className="w-2/3 border border-[#3B4B6F] bg-[#142047]/50 p-2 flex flex-col">
+          <h2 className="text-lg text-center">车辆来源分布 (热力图)</h2>
+          <div className="flex-1 h-[calc(100%-32px)]">
+            {" "}
+            {/* <-- 2. 放入地图组件 */}
+            <SourceMapChart />
+          </div>
+        </div>
       </div>
-
-      {/* ... (未来在这里添加其他图表) ... */}
     </div>
   );
 };
