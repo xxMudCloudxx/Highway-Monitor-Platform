@@ -40,7 +40,7 @@ export const AppLayout = () => {
         {/* 1. 顶部导航栏 */}
         <nav className="w-full h-12 bg-[#1f1f1f] flex items-center p-4 shadow-lg z-10">
           <h1 className="text-xl text-cyan-400 font-bold mr-6">
-            徐州市实时流量预测平台
+            徐州市高速公路实时流量预测平台
           </h1>
           <div className="flex gap-4">
             <NavLink to="/" className={navLinkClass}>

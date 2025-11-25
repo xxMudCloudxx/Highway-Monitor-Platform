@@ -19,6 +19,7 @@ import { SourceMapChart } from "../components/charts/SourceMapChart";
 import { RealtimeWarningList } from "../components/common/RealtimeWarningList";
 import { PredictionCard } from "../components/common/PredictionCard";
 import { SourcePieChart } from "../components/charts/SourcePieChart";
+import VehicleTypeChart from "../components/charts/VehicleTypeChart";
 
 /**
  * (私有) 统一面板封装组件
@@ -51,6 +52,15 @@ const Panel: React.FC<{
 export const DataScreen = () => {
   // 1. (Zustand) 获取 Action
   const { fetchAllData } = useDataScreenStore();
+  const {
+    // hourCount,
+    vehicleTypeData,
+    vehicleBrandData,
+    // mapData,
+    // prediction,
+    // vehicleBrandData,
+    // realtimeWarnings,
+  } = useDataScreenStore();
 
   // 2. (React Hook) 设置定时器
   useEffect(() => {
@@ -72,18 +82,14 @@ export const DataScreen = () => {
   // 3. (渲染)
   return (
     <div className="bg-[#0F1A3D] text-white w-full h-full p-5 box-border overflow-hidden">
-      <h1 className="text-2xl font-bold text-cyan-400 mb-4 text-center">
-        高速公路实时车流监控
-      </h1>
-
       {/* (核心布局) 1:2:1 黄金比例
         (使用 grid-cols-4)
         (h-[calc(100%-50px)] 是为了减去顶部 H1 的高度)
-      */}
+        */}
       <div className="w-full h-[calc(100%-50px)] grid grid-cols-4 gap-4">
         {/* --- 左侧栏 (col-span-1) --- 
           (2 个组件, flex-1 均分高度)
-        */}
+          */}
         <div className="col-span-1 h-full flex flex-col gap-4">
           <Panel title="24小时流量曲线 (API 3)" className="flex-1">
             <HourlyFlowChart />
@@ -95,24 +101,32 @@ export const DataScreen = () => {
 
         {/* --- 中间栏 (col-span-2) ---
           (2 个组件, 地图占比最大)
-        */}
+          */}
         <div className="col-span-2 h-full flex flex-col gap-4">
           <Panel title="车辆来源分布 (API 4)" className="flex-2">
             <SourceMapChart />
           </Panel>
-          <Panel title="未来流量预测 (API 6)" className="flex-1">
-            <PredictionCard />
-          </Panel>
+          <div className="flex flex-row flex-1">
+            <Panel title="未来流量预测 (API 6)" className="flex-1">
+              <PredictionCard />
+            </Panel>
+            <Panel title="车辆来源占比 (API 4 复用)" className="flex-1">
+              <SourcePieChart />
+            </Panel>
+          </div>
         </div>
 
         {/* --- 右侧栏 (col-span-1) ---
           (2 个组件, flex-1 均分高度)
           */}
         <div className="col-span-1 h-full flex flex-col gap-4">
-          <Panel title="车辆来源占比 (API 4 复用)" className="flex-1">
-            <SourcePieChart />
+          <Panel title="车辆品牌分布 (API 5)" className="flex-1">
+            <VehicleTypeChart data={vehicleBrandData} />
           </Panel>
-          <Panel title="实时套牌车告警 (API 5)" className="flex-1">
+          <Panel title="车辆类型分布 (API 5)" className="flex-1">
+            <VehicleTypeChart data={vehicleTypeData} />
+          </Panel>
+          <Panel title="实时套牌车告警 (API 7)" className="flex-1">
             <RealtimeWarningList />
           </Panel>
         </div>
