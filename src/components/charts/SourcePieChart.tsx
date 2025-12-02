@@ -3,21 +3,25 @@
  * @module SourcePieChart
  * @description (组件) Echarts 环形图: 车辆来源占比
  * * 职责:
- * 1. (复用) 消费 zustand store 中的 `mapData` (API 4)。
+ * 1. 接收父组件传递的 `data` (API 4)。
  * 2. 渲染 Echarts 环形图。
  */
 
 import ReactECharts from "echarts-for-react";
-import { useDataScreenStore } from "../../stores/useDataScreenStore";
+
+/**
+ * 车辆来源数据接口
+ */
+interface SourcePieChartProps {
+  data: { name: string; value: number }[];
+}
 
 /**
  * 车辆来源占比 Echarts 环形图
+ * @param {SourcePieChartProps} props - 组件属性
  * @returns {React.ReactElement}
  */
-export const SourcePieChart = () => {
-  // 1. (Zustand) (关键) 复用 [接口 4] 的数据
-  const { mapData } = useDataScreenStore();
-
+export const SourcePieChart: React.FC<SourcePieChartProps> = ({ data }) => {
   // 2. (Echarts Option)
   const option = {
     tooltip: {
@@ -30,7 +34,7 @@ export const SourcePieChart = () => {
       left: "left",
       top: "center",
       textStyle: { color: "#B5C5DB" },
-      data: mapData.slice(0, 6).map((item) => item.name), // (Why: 只显示 Top 6 图例防止拥挤)
+      data: data.slice(0, 6).map((item) => item.name), // (Why: 只显示 Top 6 图例防止拥挤)
     },
     series: [
       {
@@ -54,7 +58,7 @@ export const SourcePieChart = () => {
         },
         labelLine: { show: false },
         // (数据绑定) API.md 的 [{name, value}] 格式完美契合
-        data: mapData,
+        data: data,
       },
     ],
   };

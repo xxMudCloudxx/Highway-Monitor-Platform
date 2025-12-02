@@ -3,22 +3,29 @@
  * @module HourlyFlowChart
  * @description (组件) Echarts 折线图: 24小时流量曲线
  * * 职责:
- * 1. 消费 zustand store 中的 `hourCount` (API 3)。
+ * 1. 接收父组件传递的 `data` (API 3)。
  * 2. 渲染 Echarts 折线图。
  */
 
 import ReactECharts from "echarts-for-react";
-import { useDataScreenStore } from "../../stores/useDataScreenStore";
 import * as echarts from "echarts"; // (用于渐变色)
 
 /**
+ * 24小时流量数据接口
+ */
+interface HourlyFlowChartProps {
+  data: {
+    hours: string[];
+    data: number[];
+  };
+}
+
+/**
  * 24小时流量曲线 Echarts 折线图
+ * @param {HourlyFlowChartProps} props - 组件属性
  * @returns {React.ReactElement}
  */
-export const HourlyFlowChart = () => {
-  // 1. (Zustand) 获取 [接口 3] 数据
-  const { hourCount } = useDataScreenStore();
-
+export const HourlyFlowChart: React.FC<HourlyFlowChartProps> = ({ data }) => {
   // 2. (Echarts Option)
   const option = {
     tooltip: {
@@ -35,7 +42,7 @@ export const HourlyFlowChart = () => {
       {
         type: "category",
         boundaryGap: false,
-        data: hourCount.hours, // 对应 API.md "hours"
+        data: data.hours, // 对应 API.md "hours"
         axisLabel: { color: "#B5C5DB" },
         axisLine: { lineStyle: { color: "#3B4B6F" } },
       },
@@ -65,7 +72,7 @@ export const HourlyFlowChart = () => {
           ]),
         },
         emphasis: { focus: "series" },
-        data: hourCount.data, // 对应 API.md "data"
+        data: data.data, // 对应 API.md "data"
       },
     ],
   };

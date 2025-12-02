@@ -3,28 +3,32 @@
  * @module KkmcRankingChart
  * @description (组件) Echarts 柱状图: 卡口流量 Top 10
  * * 职责:
- * 1. 消费 zustand store 中的 `kkmcRank` (API 2)。
+ * 1. 接收父组件传递的 `data` (API 2)。
  * 2. 渲染 Echarts 柱状图 (条形图)。
  */
 
 import ReactECharts from "echarts-for-react";
-import { useDataScreenStore } from "../../stores/useDataScreenStore";
 import * as echarts from "echarts"; // (用于渐变色)
 
 /**
+ * 卡口流量数据接口
+ */
+interface KkmcRankingChartProps {
+  data: { name: string; value: number }[];
+}
+
+/**
  * 卡口流量 Top 10 Echarts 柱状图
+ * @param {KkmcRankingChartProps} props - 组件属性
  * @returns {React.ReactElement}
  */
-export const KkmcRankingChart = () => {
-  // 1. (Zustand) 获取 [接口 2] 数据
-  const { kkmcRank } = useDataScreenStore();
-
+export const KkmcRankingChart: React.FC<KkmcRankingChartProps> = ({ data }) => {
   // 2. (数据转换)
   // Why: Echarts Bar race 需要 x/y 轴数组。
   // (API 返回的是 [{name, value}]，且已排序)
   // (我们反转 .reverse() 是因为 Top 1 在上，数值小的在下)
-  const yAxisData = kkmcRank.map((item) => item.name).reverse();
-  const xAxisData = kkmcRank.map((item) => item.value).reverse();
+  const yAxisData = data.map((item) => item.name).reverse();
+  const xAxisData = data.map((item) => item.value).reverse();
 
   // 3. (Echarts Option)
   const option = {

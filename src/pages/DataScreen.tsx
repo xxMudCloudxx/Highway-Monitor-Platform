@@ -7,6 +7,7 @@
  * 1. 按照 "1:2:1" 黄金比例 布局 (grid-cols-4)。
  * 2. 组装所有 6 个图表/组件。
  * 3. (核心) 设置 30s 定时器，周期性调用 zustand store 的 fetchAllData action。
+ * 4. (Smart Container) 从 Zustand Store 获取所有数据并通过 props 传递给子组件。
  */
 
 import { useEffect } from "react";
@@ -50,16 +51,14 @@ const Panel: React.FC<{
  * @returns {React.ReactElement}
  */
 export const DataScreen = () => {
-  // 1. (Zustand) 获取 Action
-  const { fetchAllData } = useDataScreenStore();
+  // 1. (Zustand) 获取 Action 和所有数据
   const {
-    // hourCount,
+    fetchAllData,
+    hourCount,
+    kkmcRank,
+    mapData,
     vehicleTypeData,
     vehicleBrandData,
-    // mapData,
-    // prediction,
-    // vehicleBrandData,
-    // realtimeWarnings,
   } = useDataScreenStore();
 
   // 2. (React Hook) 设置定时器
@@ -67,7 +66,7 @@ export const DataScreen = () => {
     // 页面首次加载时，立即获取一次数据，防止空白
     fetchAllData();
 
-    // 设置 30s 定时器，实现“每半分钟一次对结果进行刷新”
+    // 设置 30s 定时器，实现"每半分钟一次对结果进行刷新"
     const timerId = setInterval(() => {
       console.log("触发 30s 定时刷新...");
       fetchAllData();
@@ -92,10 +91,10 @@ export const DataScreen = () => {
           */}
         <div className="col-span-1 h-full flex flex-col gap-4">
           <Panel title="24小时流量曲线 (API 3)" className="flex-1">
-            <HourlyFlowChart />
+            <HourlyFlowChart data={hourCount} />
           </Panel>
           <Panel title="卡口流量 Top 10 (API 2)" className="flex-1">
-            <KkmcRankingChart />
+            <KkmcRankingChart data={kkmcRank} />
           </Panel>
         </div>
 
@@ -104,14 +103,14 @@ export const DataScreen = () => {
           */}
         <div className="col-span-2 h-full flex flex-col gap-4">
           <Panel title="车辆来源分布 (API 4)" className="flex-2">
-            <SourceMapChart />
+            <SourceMapChart data={mapData} />
           </Panel>
           <div className="flex flex-row flex-1">
             <Panel title="未来流量预测 (API 6)" className="flex-1">
               <PredictionCard />
             </Panel>
             <Panel title="车辆来源占比 (API 4 复用)" className="flex-1">
-              <SourcePieChart />
+              <SourcePieChart data={mapData} />
             </Panel>
           </div>
         </div>

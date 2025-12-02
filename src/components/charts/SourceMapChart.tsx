@@ -5,7 +5,7 @@
  * @module SourceMapChart
  * @description (组件) Echarts 地图热力图 (V3.3 - 纯净热力块版)
  * * 职责:
- * 1. 消费 zustand store 中的 `mapData` (API 4)。
+ * 1. 接收父组件传递的 `data` (API 4)。
  * 2. 异步加载（已替换的）新 `xuzhou.json` 并注册。
  * 3. (核心) 遵循 Echarts 官方示例 (香港)，
  * 仅使用 'series.type: "map"' 统一渲染地块、标签和热力颜色。
@@ -14,18 +14,22 @@
 
 import { useEffect, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import { useDataScreenStore } from "../../stores/useDataScreenStore";
 import * as echarts from "echarts";
 import axios from "axios"; // (用于获取 xuzhou.json)
 
 /**
+ * 车辆来源数据接口
+ */
+interface SourceMapChartProps {
+  data: { name: string; value: number }[];
+}
+
+/**
  * 车辆来源 Echarts 地图热力图组件
+ * @param {SourceMapChartProps} props - 组件属性
  * @returns {React.ReactElement}
  */
-export const SourceMapChart = () => {
-  // 1. (Zustand)
-  const { mapData } = useDataScreenStore();
-
+export const SourceMapChart: React.FC<SourceMapChartProps> = ({ data }) => {
   // 2. (State)
   const [isMapRegistered, setIsMapRegistered] = useState(false);
 
@@ -106,7 +110,7 @@ export const SourceMapChart = () => {
             color: "#ffffff",
           },
         },
-        data: mapData,
+        data: data,
       },
       // [!code focus:start]
       // (V3.3)
