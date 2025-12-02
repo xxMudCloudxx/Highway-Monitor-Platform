@@ -76,22 +76,18 @@ export default [
               {
                 "GCXH|+1": (page - 1) * limit + 1,
                 // 从行政区列表中随机取一个
-                XZQHMC: "@pick(xzqhList)",
-                KKMC: "@pick(kkmcList)",
+                XZQHMC: () => Mock.Random.pick(xzqhList),
+                KKMC: () => Mock.Random.pick(kkmcList),
                 // 模拟车牌: 苏C + 5位随机字符
                 HPHM: /苏C[A-Z0-9]{5}/,
                 "CLLX|1": ["K33", "K32", "H12", "M11"],
                 GCSJ: "@datetime('yyyy-MM-dd HH:mm:ss')",
                 // 随机增加一些额外字段用于测试
-                VEHICLE_TYPE_NAME: "@pick(vehicleTypes)",
-                CLPPXH: "@pick(vehicleBrands)",
+                VEHICLE_TYPE_NAME: () => Mock.Random.pick(vehicleTypes),
+                CLPPXH: () => Mock.Random.pick(vehicleBrands),
+                CPFSF: "",
               },
             ],
-            // 必须把 xzqhList 传进去才能 pick
-            xzqhList,
-            kkmcList,
-            vehicleTypes,
-            vehicleBrands,
           }).list,
         },
       };
