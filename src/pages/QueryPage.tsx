@@ -188,6 +188,9 @@ export const QueryPage = () => {
       {/* 4.1. 搜索表单  */}
       <Form form={form} layout="inline" onFinish={onFinish} className="mb-4">
         <Form.Item name="hphm">
+          <Input placeholder="车牌号 (e.g., 粤B)" />
+        </Form.Item>
+        <Form.Item name="kkmc">
           <Select
             placeholder="请选择卡口名称"
             style={{ width: 220 }}
@@ -198,9 +201,6 @@ export const QueryPage = () => {
             onChange={(value) => setParams({ kkmc: value })} // 选完自动更新 Store
             options={KKMC_OPTIONS}
           />
-        </Form.Item>
-        <Form.Item name="kkmc">
-          <Input placeholder="卡口名称 (e.g., 卡口A)" />
         </Form.Item>
         <Form.Item name="timeRange">
           <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
