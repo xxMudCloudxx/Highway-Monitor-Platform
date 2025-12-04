@@ -10,6 +10,7 @@
 
 import { create } from "zustand";
 import axios from "axios";
+import { formatKkmc } from "../utils/dict";
 
 // --- 1. (类型定义) 基于 API.md v1.3 ---
 
@@ -120,10 +121,17 @@ export const useDataScreenStore = create<DataScreenState>((set) => ({
         axios.get(`/api/predict/flow?hour=${currentHour}`),
       ]);
 
+      // 处理卡口排行数据：将 Code 转换为中文
+      const rawKkmcList = kkmcRes.data.data || [];
+      const formattedKkmcList = rawKkmcList.map((item: any) => ({
+        ...item,
+        name: formatKkmc(item.name), // 使用字典进行翻译
+      }));
+
       // (批量更新状态，减少 React 渲染次数)
       set({
         hourCount: hourRes.data.data,
-        kkmcRank: kkmcRes.data.data,
+        kkmcRank: formattedKkmcList,
         mapData: mapRes.data.data,
         vehicleTypeData: typeRes.data.data, // 注入新数据
         vehicleBrandData: brandRes.data.data, // 注入新数据

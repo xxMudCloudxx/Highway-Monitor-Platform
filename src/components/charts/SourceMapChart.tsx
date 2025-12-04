@@ -55,7 +55,18 @@ export const SourceMapChart: React.FC<SourceMapChartProps> = ({ data }) => {
   const option = {
     tooltip: {
       trigger: "item",
-      formatter: "{b}: {c} 辆", // (b: 名称, c: value)
+      formatter: function (params: any) {
+        // params.name 是地区名 (如 "鼓楼区")
+        // params.value 是数值 (如果没有数据，这里会是 undefined 或 NaN)
+
+        const val = params.value;
+
+        // 如果 val 是 NaN、undefined 或 null，就显示 0
+        // 否则显示真实数值
+        const displayValue = val || val === 0 ? val : 0;
+
+        return `${params.name}<br/>车辆来源: ${displayValue} 辆`;
+      },
     },
     // (视觉映射)
     visualMap: {

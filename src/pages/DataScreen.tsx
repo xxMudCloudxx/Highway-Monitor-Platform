@@ -90,10 +90,10 @@ export const DataScreen = () => {
           (2 个组件, flex-1 均分高度)
           */}
         <div className="col-span-1 h-full flex flex-col gap-4">
-          <Panel title="24小时流量曲线 (API 3)" className="flex-1">
+          <Panel title="24小时流量曲线" className="flex-1">
             <HourlyFlowChart data={hourCount} />
           </Panel>
-          <Panel title="卡口流量 Top 10 (API 2)" className="flex-1">
+          <Panel title="卡口流量 Top 10" className="flex-1">
             <KkmcRankingChart data={kkmcRank} />
           </Panel>
         </div>
@@ -102,14 +102,14 @@ export const DataScreen = () => {
           (2 个组件, 地图占比最大)
           */}
         <div className="col-span-2 h-full flex flex-col gap-4">
-          <Panel title="车辆来源分布 (API 4)" className="flex-2">
+          <Panel title="车辆来源分布" className="flex-2">
             <SourceMapChart data={mapData} />
           </Panel>
           <div className="flex flex-row flex-1">
-            <Panel title="未来流量预测 (API 6)" className="flex-1">
+            <Panel title="未来流量预测 (API 6 mock)" className="flex-1">
               <PredictionCard />
             </Panel>
-            <Panel title="车辆来源占比 (API 4 复用)" className="flex-1">
+            <Panel title="车辆来源占比" className="flex-1">
               <SourcePieChart data={mapData} />
             </Panel>
           </div>
@@ -119,13 +119,13 @@ export const DataScreen = () => {
           (2 个组件, flex-1 均分高度)
           */}
         <div className="col-span-1 h-full flex flex-col gap-4">
-          <Panel title="车辆品牌分布 (API 5)" className="flex-1">
+          <Panel title="车辆品牌分布" className="flex-1">
             <VehicleTypeChart data={vehicleBrandData} />
           </Panel>
-          <Panel title="车辆类型分布 (API 5)" className="flex-1">
+          <Panel title="车辆类型分布" className="flex-1">
             <VehicleTypeChart data={vehicleTypeData} />
           </Panel>
-          <Panel title="实时套牌车告警 (API 7)" className="flex-1">
+          <Panel title="实时套牌车告警 (API 7 mock)" className="flex-1">
             <RealtimeWarningList />
           </Panel>
         </div>
