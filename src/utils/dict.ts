@@ -27,3 +27,8 @@ export const KKMC_MAP: Record<string, string> = {
 export const formatKkmc = (code: string): string => {
   return KKMC_MAP[code] || code;
 };
+
+export const KKMC_OPTIONS = Object.entries(KKMC_MAP).map(([code, name]) => ({
+  label: name, // 用户看到的：中文
+  value: code, // 实际传值的：Code
+}));

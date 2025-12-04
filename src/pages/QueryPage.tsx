@@ -18,11 +18,14 @@ import {
   Table,
   Pagination,
   Space,
-  App as AntdApp, // (用于显示 message/notification)
+  App as AntdApp,
+  Select, // (用于显示 message/notification)
 } from "antd";
 import { useQueryPageStore } from "../stores/useQueryPageStore";
 import type { TableProps } from "antd";
 import type { Dayjs } from "dayjs"; // (antd 5 依赖 dayjs)
+import { formatKkmc, KKMC_OPTIONS } from "../utils/dict";
+import { formatTime } from "../utils/format";
 
 // --- 1. (类型定义) ---
 
@@ -44,7 +47,6 @@ interface TrafficRecord {
 
 /**
  * (核心) Antd Table 的列定义
- * (完全参考 高成-前端(交互式查询页面).pdf.pdf 和 image_4f4c27.jpg 的表格)
  */
 const columns: TableProps<TrafficRecord>["columns"] = [
   {
@@ -64,23 +66,31 @@ const columns: TableProps<TrafficRecord>["columns"] = [
     dataIndex: "KKMC",
     key: "KKMC",
     width: 150,
+    render: (name) => formatKkmc(name),
   },
   {
     title: "过车时间",
     dataIndex: "GCSJ",
     key: "GCSJ",
     width: 200,
+    render: (text) => formatTime(text),
   },
   {
     title: "车辆类型",
-    dataIndex: "CLLX",
-    key: "CLLX",
+    dataIndex: "VEHICLE_TYPE_NAME",
+    key: "VEHICLE_TYPE_NAME",
     width: 100,
   },
   {
     title: "车牌省份",
-    dataIndex: "CPFSF",
-    key: "CPFSF",
+    dataIndex: "PROVINCE",
+    key: "PROVINCE",
+    width: 100,
+  },
+  {
+    title: "车辆种类",
+    dataIndex: "FUEL_TYPE",
+    key: "FUEL_TYPE",
     width: 100,
   },
 ];
@@ -173,12 +183,21 @@ export const QueryPage = () => {
   // 4. (渲染)
   return (
     <div className="p-5 min-h-full">
-      <h1 className="text-2xl mb-4 text-white">交互式查询 (Mock)</h1>
+      <h1 className="text-2xl mb-4 text-white">交互式查询</h1>
 
-      {/* 4.1. 搜索表单 (参考 image_4f4c27.jpg) */}
+      {/* 4.1. 搜索表单  */}
       <Form form={form} layout="inline" onFinish={onFinish} className="mb-4">
         <Form.Item name="hphm">
-          <Input placeholder="车牌号 (e.g., 粤B)" />
+          <Select
+            placeholder="请选择卡口名称"
+            style={{ width: 220 }}
+            allowClear
+            showSearch // 允许用户打字搜索中文
+            optionFilterProp="label" // 搜索时匹配 label (中文名)
+            value={params.kkmc} // 绑定 Store 中的 kkmc
+            onChange={(value) => setParams({ kkmc: value })} // 选完自动更新 Store
+            options={KKMC_OPTIONS}
+          />
         </Form.Item>
         <Form.Item name="kkmc">
           <Input placeholder="卡口名称 (e.g., 卡口A)" />
@@ -207,7 +226,7 @@ export const QueryPage = () => {
         className="mb-4 mt-4"
       />
 
-      {/* 4.3. 独立分页器 (参考 高成.pdf) */}
+      {/* 4.3. 独立分页器 */}
       <Pagination
         showSizeChanger // (允许切换每页条数)
         current={params.page}

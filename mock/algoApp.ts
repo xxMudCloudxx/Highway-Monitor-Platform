@@ -39,7 +39,7 @@ export default [
         data: {
           kkmc: kkmc,
           hour: parseInt(String(hour), 10),
-          predicted_flow: Mock.Random.integer(400, 600), // (C 需参考 杨再润-组长.pdf 实现)
+          predicted_flow: Mock.Random.integer(400, 600),
         },
       };
     },
