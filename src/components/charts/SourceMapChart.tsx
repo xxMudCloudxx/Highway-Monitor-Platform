@@ -2,7 +2,10 @@
 
 /**
  * @file src/components/charts/SourceMapChart.tsx
- * @description (组件) Echarts 卡口热力分布图 (V5.0 - 完美匹配后端中文名版)
+ * @description (组件) Echarts 综合监控图 (V8.2 - 双色阶独立配色版)
+ * * 核心变更:
+ * 1. 锁定地图: roam: false，禁止移动缩放。
+ * 2. 双 VisualMap: 地图用深蓝，散点用“蓝黄红”高亮，彻底解决点不明显的问题。
  */
 
 import { useEffect, useState, useMemo } from "react";
@@ -10,93 +13,64 @@ import ReactECharts from "echarts-for-react";
 import * as echarts from "echarts";
 import axios from "axios";
 
-// ----------------------------------------------------------------------
-// 1. 核心映射表: 将后端返回的中文名称映射到徐州地图经纬度
-// * 这里的 Key 必须与 console.log 打印出的 name 完全一致
-// ----------------------------------------------------------------------
+// 1. 卡口坐标字典 (已校准)
 const stationCoordinates: Record<string, [number, number]> = {
-  // --- 丰县 (西北) ---
-  "G518-丰县-马楼站": [116.5365, 34.7633], // 西北角
-  "G237-丰县-荣庄": [116.4988, 34.6512], // 西部边界
-  "鹿梁路-丰县-梁寨站": [116.7135, 34.6163], // 东南部
-
-  // --- 沛县 (北部) ---
-  "S253-沛县-苏鲁界": [116.9358, 34.8022], // 北部边界
-
-  // --- 铜山区 (环绕市区，北部、西部、南部) ---
-  "G3-京台高速-苏鲁界": [117.2223, 34.6429], // 北部 (高速入口附近)
-  "G104-铜山-苏鲁界": [117.1321, 34.5117], // 西北部边界
-  "G310-铜山-苏皖界": [116.9487, 34.3084], // 西部边界
-  "G311-铜山-苏皖界": [117.0495, 34.1909], // 西南部边界
-  "G206-铜山-苏皖界": [117.2606, 34.0886], // 南部边界
-
-  // --- 邳州市 (东部/东北部) ---
-  "S250-邳州-苏鲁界": [117.937, 34.6384], // 北部边界
-  "S251-邳州-苏鲁界": [118.121, 34.5523], // 东北边界
-  "G310连云港-天水K152": [117.9702, 34.326], // 中部
-
-  // --- 睢宁县 (东南部) ---
-  "S325-睢宁-西卡口": [117.7682, 33.9571], // 西部边界
-  "S324-睢宁-桑庄": [117.9498, 33.9707], // 中部
-  "G104-睢宁-苏皖界": [117.8451, 33.8567], // 南部边界
-  "S252-睢宁-苏皖界": [118.0657, 33.8758], // 东南边界
-
-  // --- 新沂市 (最东部) ---
-  "S505-新沂-高速西": [118.1753, 34.3909], // 西部
-  "S323-新沂-瓦窑站": [118.3448, 34.3598], // 中部
-  "G235-新沂-交界": [118.4819, 34.3796], // 东部边界
-  "S323-新沂-阿湖卡口": [118.2686, 34.2121], // 南部边界
+  "G518-丰县-马楼站": [116.5365, 34.7633],
+  "G237-丰县-荣庄": [116.4988, 34.6512],
+  "鹿梁路-丰县-梁寨站": [116.7135, 34.6163],
+  "S253-沛县-苏鲁界": [116.9358, 34.8022],
+  "G3-京台高速-苏鲁界": [117.2223, 34.6429],
+  "G104-铜山-苏鲁界": [117.1321, 34.5117],
+  "G310-铜山-苏皖界": [116.9487, 34.3084],
+  "G311-铜山-苏皖界": [117.0495, 34.1909],
+  "G206-铜山-苏皖界": [117.2606, 34.0886],
+  "S250-邳州-苏鲁界": [117.937, 34.6384],
+  "S251-邳州-苏鲁界": [118.121, 34.5523],
+  "G310连云港-天水K152": [117.9702, 34.326],
+  "S325-睢宁-西卡口": [117.7682, 33.9571],
+  "S324-睢宁-桑庄": [117.9498, 33.9707],
+  "G104-睢宁-苏皖界": [117.8451, 33.8567],
+  "S252-睢宁-苏皖界": [118.0657, 33.8758],
+  "S505-新沂-高速西": [118.1753, 34.3909],
+  "S323-新沂-瓦窑站": [118.3448, 34.3598],
+  "G235-新沂-交界": [118.4819, 34.3796],
+  "S323-新沂-阿湖卡口": [118.2686, 34.2121],
 };
 
 interface SourceMapChartProps {
-  data: { name: string; value: number }[];
+  data: {
+    districts: { name: string; value: number }[];
+    stations: { name: string; value: number }[];
+  };
 }
 
 export const SourceMapChart: React.FC<SourceMapChartProps> = ({ data }) => {
   const [isMapRegistered, setIsMapRegistered] = useState(false);
 
-  // 2. 数据转换: 匹配坐标
-  const convertData = (backendData: { name: string; value: number }[]) => {
+  const districtsData = data?.districts || [];
+  const stationsDataRaw = data?.stations || [];
+
+  // 2. 散点数据处理
+  const scatterData = useMemo(() => {
     const res: any[] = [];
-    if (!backendData) return res;
-
-    // console.log("地图收到数据:", backendData);
-
-    backendData.forEach((item) => {
-      // 这里的 item.name 就是 "S250-邳州-苏鲁界"
+    stationsDataRaw.forEach((item) => {
       const geoCoord = stationCoordinates[item.name];
-
       if (geoCoord) {
         res.push({
           name: item.name,
-          // 数组格式: [经度, 纬度, 流量值]
           value: [...geoCoord, item.value],
         });
-      } else {
-        // 如果后端加了新点，这里会警告，方便后续补充坐标
-        console.warn(`⚠️ 坐标字典缺失: [${item.name}]`);
       }
     });
     return res;
-  };
-
-  const mapData = useMemo(() => convertData(data), [data]);
+  }, [stationsDataRaw]);
 
   // 3. 注册地图
   useEffect(() => {
-    if (echarts.getMap("xuzhou")) {
+    axios.get("/map/xuzhou.json").then((response) => {
+      echarts.registerMap("xuzhou", response.data);
       setIsMapRegistered(true);
-      return;
-    }
-    axios
-      .get("/map/xuzhou.json")
-      .then((response) => {
-        echarts.registerMap("xuzhou", response.data);
-        setIsMapRegistered(true);
-      })
-      .catch((error) => {
-        console.error("Map Load Failed:", error);
-      });
+    });
   }, []);
 
   // 4. Echarts 配置
@@ -108,70 +82,121 @@ export const SourceMapChart: React.FC<SourceMapChartProps> = ({ data }) => {
       textStyle: { color: "#fff" },
       formatter: function (params: any) {
         if (params.seriesType === "effectScatter") {
-          const val = params.value[2]; // 取流量值
-          return `
-            <div style="text-align:left; padding:5px;">
-              <b style="color:#fff; font-size:14px;">${params.name}</b><br/>
-              <span style="color:#aaa;">实时流量:</span> 
-              <span style="color:#FFD700; font-weight:bold; font-size:16px; margin-left:5px;">${val}</span>
-            </div>
-          `;
+          return `<div style="text-align:left;">
+              <b style="color:#fff;">${params.name}</b><br/>
+              <span style="color:#aaa;">卡口流量:</span> <span style="color:#FFD700;font-weight:bold">${params.value[2]}</span>
+            </div>`;
+        } else {
+          return `<div style="text-align:left;">
+              <b style="color:#fff;">${params.name}</b><br/>
+              <span style="color:#aaa;">区域总流量:</span> <span style="color:#86c5ff;font-weight:bold">${
+                params.value || 0
+              }</span>
+            </div>`;
         }
-        return params.name;
       },
     },
 
-    // 视觉映射: 9万多是最大值，所以 max 设 100000 比较合适
-    visualMap: {
-      min: 0,
-      max: 100000,
-      dimension: 2, // 指定使用 data 的第 3 列 (value) 来计算颜色
-      left: "20",
-      bottom: "20",
-      text: ["高流量", "低流量"],
-      calculable: true,
-      inRange: {
-        color: ["#50a3ba", "#eac736", "#d94e5d"], // 蓝 -> 黄 -> 红
-        symbolSize: [8, 20], // 流量越大，圆点越大
+    // 🎨 核心修改: 使用数组定义两个 visualMap，实现颜色分离
+    visualMap: [
+      // 1. 底图配色 (经典蓝紫)
+      {
+        type: "continuous",
+        seriesIndex: 0, // 仅控制 series[0] (行政区地图)
+        min: 0,
+        max: 200000,
+        left: "20",
+        bottom: "20",
+        text: ["区域高", "区域低"],
+        inRange: {
+          color: ["#0f1c3c", "#1a3a7b", "#2a5abc", "#4a90e2", "#86c5ff"],
+        },
+        textStyle: { color: "#B5C5DB" },
       },
-      textStyle: { color: "#fff" },
-    },
+      // 2. 散点配色 (蓝-橙-红) - 让点非常明显
+      {
+        type: "continuous",
+        seriesIndex: 1, // 仅控制 series[1] (卡口散点)
+        min: 0,
+        max: 100000, // 卡口流量通常比区域小，上限设低一点
+        right: "20", // 放在右下角，避免重叠
+        bottom: "20",
+        text: ["拥堵", "通畅"],
+        inRange: {
+          // 颜色顺序: 低 -> 高 (蓝 -> 黄 -> 红)
+          color: ["#8eecf7", "#f1c064", "#ff0c0c"],
+          // 同时也控制点的大小，流量越大点越大
+          symbolSize: [8, 15],
+        },
+        textStyle: { color: "#fff" },
+      },
+    ],
 
-    // 底部地图层 (深蓝背景)
+    // Geo 隐形底座 (定位用)
     geo: {
       map: "xuzhou",
-      roam: true,
+      roam: false, // 🚫 锁定地图，禁止移动/缩放
       zoom: 1.2,
-      zlevel: 0,
-      label: { show: true }, // 不显示行政区名字，太乱
-      itemStyle: {
-        areaColor: "#0F1C3C",
-        borderColor: "#4A90E2",
-        borderWidth: 1,
-        shadowColor: "rgba(0, 54, 255, 0.5)",
-        shadowBlur: 10,
-      },
-      emphasis: {
-        itemStyle: { areaColor: "#1A3A7B" },
-      },
+      label: { show: false },
+      itemStyle: { opacity: 0 },
     },
 
-    // 数据散点层
     series: [
+      // Layer 1: 行政区热力图
+      {
+        name: "区域流量",
+        type: "map",
+        map: "xuzhou",
+        roam: false, // 🚫 锁定地图，禁止移动/缩放
+        zoom: 1.2,
+        // 绑定到第一个 visualMap (索引0)
+        // Echarts 默认逻辑，如果不指定，visualMap会自动匹配。
+        // 但为了保险，我们可以依赖 seriesIndex 的匹配逻辑。
+
+        label: {
+          show: true,
+          color: "#ffffff",
+          fontSize: 10,
+        },
+        itemStyle: {
+          areaColor: "#1A3A7B",
+          borderColor: "#4A90E2",
+          borderWidth: 1,
+        },
+        emphasis: {
+          itemStyle: {
+            areaColor: "#FFA500",
+            shadowBlur: 20,
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+          },
+          label: { color: "#fff" },
+        },
+        data: districtsData,
+        zlevel: 0,
+      },
+
+      // Layer 2: 卡口散点图
       {
         name: "卡口流量",
         type: "effectScatter",
         coordinateSystem: "geo",
-        data: mapData,
+        data: scatterData,
+
+        // 注意：symbolSize 现在由 visualMap[1] 接管控制，
+        // 这里可以不写，或者写一个回调作为 fallback
+
         rippleEffect: {
           brushType: "stroke",
           scale: 3,
         },
+
         itemStyle: {
+          // 删除了 color: '#fff'，让 visualMap[1] 的红黄蓝生效
           shadowBlur: 10,
           shadowColor: "#333",
         },
-        label: { show: false }, // 名字太长，平时隐藏，鼠标放上去显示
+
+        label: { show: false },
         zlevel: 1,
       },
     ],

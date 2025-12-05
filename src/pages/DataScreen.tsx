@@ -103,7 +103,7 @@ export const DataScreen = () => {
           */}
         <div className="col-span-2 h-full flex flex-col gap-4">
           <Panel title="车辆来源分布" className="flex-2">
-            <SourceMapChart data={kkmcRank} />
+            <SourceMapChart data={{ districts: mapData, stations: kkmcRank }} />
           </Panel>
           <div className="flex flex-row flex-1">
             <Panel title="未来流量预测 (API 6 mock)" className="flex-1">

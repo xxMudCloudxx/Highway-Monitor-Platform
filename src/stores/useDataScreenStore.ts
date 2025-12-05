@@ -27,7 +27,7 @@ interface HourCountData {
  * @interface ChartItem
  * @description 通用图表数据项 {name, value}，用于 排行榜、地图、饼图
  */
-interface ChartItem {
+export interface ChartItem {
   name: string;
   value: number;
 }
@@ -107,7 +107,7 @@ export const useDataScreenStore = create<DataScreenState>((set) => ({
         hourRes, // 接口 3
         kkmcRes, // 接口 2
         mapRes, // 接口 4
-        typeRes, // 接口 5 
+        typeRes, // 接口 5
         brandRes, // 接口 6
         warningRes, // 接口 7
         predictRes, // 接口 8
