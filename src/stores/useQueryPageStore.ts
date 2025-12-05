@@ -93,7 +93,7 @@ export const useQueryPageStore = create<QueryPageState>((set, get) => ({
   // --- 默认值 (Default State) ---
   params: {
     page: 1,
-    limit: 10, // (Antd 默认分页)
+    limit: 15, // (Antd 默认分页)
     kkmc: null,
     hphm: null,
     startTime: null,

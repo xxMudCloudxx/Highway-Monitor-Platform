@@ -27,8 +27,15 @@ export const KkmcRankingChart: React.FC<KkmcRankingChartProps> = ({ data }) => {
   // Why: Echarts Bar race 需要 x/y 轴数组。
   // (API 返回的是 [{name, value}]，且已排序)
   // (我们反转 .reverse() 是因为 Top 1 在上，数值小的在下)
-  const yAxisData = data.map((item) => item.name).reverse();
-  const xAxisData = data.map((item) => item.value).reverse();
+  const yAxisData = data
+    .map((item) => item.name)
+    .splice(0, 10)
+    .reverse();
+
+  const xAxisData = data
+    .map((item) => item.value)
+    .splice(0, 10)
+    .reverse();
 
   // 3. (Echarts Option)
   const option = {

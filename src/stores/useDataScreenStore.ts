@@ -107,8 +107,8 @@ export const useDataScreenStore = create<DataScreenState>((set) => ({
         hourRes, // 接口 3
         kkmcRes, // 接口 2
         mapRes, // 接口 4
-        typeRes, // 接口 5 (新)
-        brandRes, // 接口 6 (新)
+        typeRes, // 接口 5 
+        brandRes, // 接口 6
         warningRes, // 接口 7
         predictRes, // 接口 8
       ] = await Promise.all([

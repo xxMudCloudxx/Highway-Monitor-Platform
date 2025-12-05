@@ -221,7 +221,7 @@ export const QueryPage = () => {
         dataSource={data.records}
         loading={loading}
         rowKey="GCXH" // (使用 GCXH 作为 key)
-        pagination={false} // Why: 我们使用外部独立的分页器
+        pagination={false}
         bordered
         className="mb-4 mt-4"
       />
