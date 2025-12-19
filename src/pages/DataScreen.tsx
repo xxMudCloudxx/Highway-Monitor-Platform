@@ -125,7 +125,7 @@ export const DataScreen = () => {
           <Panel title="车辆类型分布" className="flex-1">
             <VehicleTypeChart data={vehicleTypeData} />
           </Panel>
-          <Panel title="实时套牌车告警 (API 7 mock)" className="flex-1">
+          <Panel title="实时套牌车告警" className="flex-1">
             <RealtimeWarningList />
           </Panel>
         </div>

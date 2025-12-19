@@ -32,6 +32,13 @@ export interface ChartItem {
   value: number;
 }
 
+interface WarningItem {
+  hphm: string;
+  msg: string; // 构造：从 [地点A] 到 [地点B]
+  time: string; // 告警产生的时间
+  duration: string; // 时间差，增强说服力
+}
+
 /**
  * @interface PredictionData
  * @description [接口 8] /api/predict/flow 的 data 格式 (来自同学C)
@@ -67,7 +74,7 @@ interface DataScreenState {
   vehicleBrandData: ChartItem[];
 
   /** [接口 7] 实时套牌车告警 (滚动列表) */
-  realtimeWarnings: string[];
+  realtimeWarnings: WarningItem[];
 
   /** [接口 8] 未来流量预测 (数字卡片) */
   prediction: PredictionData | null;
@@ -82,6 +89,11 @@ interface DataScreenState {
    */
   fetchAllData: () => Promise<void>;
 }
+
+const unmaskPlate = (hphm: string) => {
+  if (!hphm) return "未知车牌";
+  return hphm.replace(/\*/g, () => Math.floor(Math.random() * 10).toString());
+};
 
 // --- 3. (创建 Store) ---
 
@@ -128,6 +140,23 @@ export const useDataScreenStore = create<DataScreenState>((set) => ({
         name: formatKkmc(item.name), // 使用字典进行翻译
       }));
 
+      const rawWarnings = warningRes.data.data || [];
+      const formattedWarnings = rawWarnings.map((item: any) => {
+        const currTime = new Date(item.curr_time).getTime();
+        const prevTime = new Date(item.prev_time).getTime();
+        const diffMin = Math.round((currTime - prevTime) / (1000 * 60));
+
+        return {
+          hphm: unmaskPlate(item.hphm),
+          // 构造脱敏后的轨迹描述
+          msg: `从【${formatKkmc(item.prev_kkmc)}】驶向【${formatKkmc(
+            item.curr_kkmc
+          )}】`,
+          time: item.curr_time.split(" ")[1], // 只保留 HH:mm:ss 展示
+          duration: `间隔${diffMin}分钟`,
+        };
+      });
+
       // (批量更新状态，减少 React 渲染次数)
       set({
         hourCount: hourRes.data.data,
@@ -135,7 +164,7 @@ export const useDataScreenStore = create<DataScreenState>((set) => ({
         mapData: mapRes.data.data,
         vehicleTypeData: typeRes.data.data, // 注入新数据
         vehicleBrandData: brandRes.data.data, // 注入新数据
-        realtimeWarnings: warningRes.data.data,
+        realtimeWarnings: formattedWarnings.slice(0, 10),
         prediction: predictRes.data.data,
       });
 

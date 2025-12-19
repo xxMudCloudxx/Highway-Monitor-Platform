@@ -14,33 +14,45 @@ import { BellIcon } from "@heroicons/react/24/solid";
  * 实时套牌车告警 (API 5) 滚动列表
  * @returns {React.ReactElement}
  */
+
 export const RealtimeWarningList = () => {
-  // 1. (Zustand) 获取 [接口 5] 数据
   const { realtimeWarnings } = useDataScreenStore();
 
-  // 2. (关键)
-  // Why: 为了实现无缝滚动，我们将列表数据复制一份。
-  // (当第一份滚动到末尾时，第二份无缝衔接，然后动画重置)
-  const displayWarnings = [...realtimeWarnings, ...realtimeWarnings];
-
   return (
-    <div className="w-full h-full overflow-hidden">
-      {/* 3. (Tailwind v4)
-        (animate-scroll-y 是在 tailwind.config.js 中定义的)
-        (hover:[animation-play-state:paused] 实现了 Hober 暂停)
-       */}
-      <div
-        className="animate-scroll-y hover:[animation-play-state:paused]"
-        // (动态设置动画时长，防止数据太少时滚动过快)
-        style={{ animationDuration: `${realtimeWarnings.length * 2.5}s` }} // (e.g., 10条数据 25s)
-      >
-        {displayWarnings.map((warning, index) => (
+    // 1. 设置固定高度 (如 h-[400px])
+    // 2. 移除 animate-scroll-y (如果改为手动滚动/溢出显示)
+    // 3. 增加 custom-scrollbar 样式 (需在 index.css 定义)
+    <div className="w-full h-[420px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+      <div className="flex flex-col gap-2">
+        {realtimeWarnings.map((warning, index) => (
           <div
             key={index}
-            className="flex items-center p-2 border-b border-[#3B4B6F]/50"
+            className="flex flex-col p-3 border-b border-[#3B4B6F]/30 bg-red-500/5 hover:bg-red-500/10 transition-colors"
           >
-            <BellIcon className="w-4 h-4 text-yellow-500 mr-2 shrink-0" />
-            <span className="text-sm text-gray-300 truncate">{warning}</span>
+            <div className="flex justify-between items-center mb-1">
+              <div className="flex items-center">
+                <BellIcon className="w-4 h-4 text-red-500 mr-2" />
+                {/* 这里的 warning.hphm 现在会显示后端传来的原始字符串 */}
+                <span className="text-red-400 font-mono font-bold text-base tracking-widest">
+                  {warning.hphm}
+                </span>
+              </div>
+              <span className="text-[10px] text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">
+                套牌预警
+              </span>
+            </div>
+
+            <div className="text-xs text-gray-300 leading-relaxed bg-[#1a2333] p-2 rounded mt-1">
+              <span className="text-gray-500">轨迹：</span>
+              {warning.msg}
+            </div>
+
+            <div className="flex justify-between mt-2 text-[10px] text-gray-500 italic">
+              <span>时间: {warning.time}</span>
+              <span className="text-yellow-600 font-bold">
+                {warning.duration}
+              </span>
+            </div>
           </div>
         ))}
       </div>
