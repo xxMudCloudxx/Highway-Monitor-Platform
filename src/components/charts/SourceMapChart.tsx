@@ -104,7 +104,7 @@ export const SourceMapChart: React.FC<SourceMapChartProps> = ({ data }) => {
         type: "continuous",
         seriesIndex: 0, // 仅控制 series[0] (行政区地图)
         min: 0,
-        max: 200000,
+        max: 3000,
         left: "20",
         bottom: "20",
         text: ["区域高", "区域低"],
@@ -118,10 +118,10 @@ export const SourceMapChart: React.FC<SourceMapChartProps> = ({ data }) => {
         type: "continuous",
         seriesIndex: 1, // 仅控制 series[1] (卡口散点)
         min: 0,
-        max: 100000, // 卡口流量通常比区域小，上限设低一点
+        max: 1200, // 卡口流量通常比区域小，上限设低一点
         right: "20", // 放在右下角，避免重叠
         bottom: "20",
-        text: ["拥堵", "通畅"],
+        text: ["热门", "冷淡"],
         inRange: {
           // 颜色顺序: 低 -> 高 (蓝 -> 黄 -> 红)
           color: ["#8eecf7", "#f1c064", "#ff0c0c"],

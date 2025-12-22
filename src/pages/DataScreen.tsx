@@ -18,7 +18,6 @@ import { HourlyFlowChart } from "../components/charts/HourlyFlowChart";
 import { KkmcRankingChart } from "../components/charts/KkmcRankingChart";
 import { SourceMapChart } from "../components/charts/SourceMapChart";
 import { RealtimeWarningList } from "../components/common/RealtimeWarningList";
-import { PredictionCard } from "../components/common/PredictionCard";
 import { SourcePieChart } from "../components/charts/SourcePieChart";
 import VehicleTypeChart from "../components/charts/VehicleTypeChart";
 
@@ -106,12 +105,12 @@ export const DataScreen = () => {
             <SourceMapChart data={{ districts: mapData, stations: kkmcRank }} />
           </Panel>
           <div className="flex flex-row flex-1">
-            <Panel title="未来流量预测 (API 6 mock)" className="flex-1">
+            <Panel title="实时套牌车告警" className="flex-1">
+              <RealtimeWarningList />
+            </Panel>
+            {/* <Panel title="未来流量预测 (API 6 mock)" className="flex-1">
               <PredictionCard />
-            </Panel>
-            <Panel title="车辆来源占比" className="flex-1">
-              <SourcePieChart data={mapData} />
-            </Panel>
+            </Panel> */}
           </div>
         </div>
 
@@ -125,8 +124,8 @@ export const DataScreen = () => {
           <Panel title="车辆类型分布" className="flex-1">
             <VehicleTypeChart data={vehicleTypeData} />
           </Panel>
-          <Panel title="实时套牌车告警" className="flex-1">
-            <RealtimeWarningList />
+          <Panel title="车辆来源占比" className="flex-1">
+            <SourcePieChart data={mapData} />
           </Panel>
         </div>
       </div>

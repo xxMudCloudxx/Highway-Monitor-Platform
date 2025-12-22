@@ -24,7 +24,14 @@ import {
 import { useQueryPageStore } from "../stores/useQueryPageStore";
 import type { TableProps } from "antd";
 import type { Dayjs } from "dayjs"; // (antd 5 依赖 dayjs)
-import { formatKkmc, KKMC_OPTIONS } from "../utils/dict";
+import {
+  formatKkmc,
+  KKMC_OPTIONS,
+  VEHICLE_TYPE_OPTIONS,
+  PROVINCE_OPTIONS,
+  FUEL_TYPE_OPTIONS,
+  formatProvince,
+} from "../utils/dict";
 import { formatTime } from "../utils/format";
 
 // --- 1. (类型定义) ---
@@ -85,7 +92,8 @@ const columns: TableProps<TrafficRecord>["columns"] = [
     title: "车牌省份",
     dataIndex: "PROVINCE",
     key: "PROVINCE",
-    width: 100,
+    width: 120,
+    render: (abbr) => formatProvince(abbr),
   },
   {
     title: "车辆种类",
@@ -126,8 +134,11 @@ export const QueryPage = () => {
     hphm?: string;
     kkmc?: string;
     timeRange?: [Dayjs, Dayjs];
+    vehicleType?: string;
+    province?: string;
+    fuelType?: string;
   }) => {
-    const { kkmc, hphm, timeRange } = values;
+    const { kkmc, hphm, timeRange, vehicleType, province, fuelType } = values;
 
     let startTime = null;
     let endTime = null;
@@ -144,6 +155,9 @@ export const QueryPage = () => {
       hphm: hphm || null,
       startTime: startTime,
       endTime: endTime,
+      vehicleType: vehicleType || null,
+      province: province || null,
+      fuelType: fuelType || null,
       page: 1, // Why: 新的搜索总是从第 1 页开始
     });
 
@@ -162,6 +176,9 @@ export const QueryPage = () => {
       hphm: null,
       startTime: null,
       endTime: null,
+      vehicleType: null,
+      province: null,
+      fuelType: null,
       page: 1,
       limit: 10,
     });
@@ -186,20 +203,61 @@ export const QueryPage = () => {
       <h1 className="text-2xl mb-4 text-white">交互式查询</h1>
 
       {/* 4.1. 搜索表单  */}
-      <Form form={form} layout="inline" onFinish={onFinish} className="mb-4">
+      <Form
+        form={form}
+        layout="inline"
+        onFinish={onFinish}
+        className="mb-4 flex flex-wrap gap-y-3"
+      >
         <Form.Item name="hphm">
-          <Input placeholder="车牌号 (e.g., 粤B)" />
+          <Input placeholder="车牌号 (e.g., 粤B)" style={{ width: 160 }} />
         </Form.Item>
         <Form.Item name="kkmc">
           <Select
             placeholder="请选择卡口名称"
-            style={{ width: 220 }}
+            style={{ width: 200 }}
             allowClear
             showSearch // 允许用户打字搜索中文
             optionFilterProp="label" // 搜索时匹配 label (中文名)
             value={params.kkmc} // 绑定 Store 中的 kkmc
             onChange={(value) => setParams({ kkmc: value })} // 选完自动更新 Store
             options={KKMC_OPTIONS}
+          />
+        </Form.Item>
+        <Form.Item name="vehicleType">
+          <Select
+            placeholder="车辆类型"
+            style={{ width: 130 }}
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            value={params.vehicleType}
+            onChange={(value) => setParams({ vehicleType: value })}
+            options={VEHICLE_TYPE_OPTIONS}
+          />
+        </Form.Item>
+        <Form.Item name="province">
+          <Select
+            placeholder="车牌省份"
+            style={{ width: 180 }}
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            value={params.province}
+            onChange={(value) => setParams({ province: value })}
+            options={PROVINCE_OPTIONS}
+          />
+        </Form.Item>
+        <Form.Item name="fuelType">
+          <Select
+            placeholder="车辆种类"
+            style={{ width: 130 }}
+            allowClear
+            showSearch
+            optionFilterProp="label"
+            value={params.fuelType}
+            onChange={(value) => setParams({ fuelType: value })}
+            options={FUEL_TYPE_OPTIONS}
           />
         </Form.Item>
         <Form.Item name="timeRange">

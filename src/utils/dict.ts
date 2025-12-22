@@ -32,3 +32,77 @@ export const KKMC_OPTIONS = Object.entries(KKMC_MAP).map(([code, name]) => ({
   label: name, // 用户看到的：中文
   value: code, // 实际传值的：Code
 }));
+
+// --- 车辆类型 (Vehicle Type) ---
+export const VEHICLE_TYPE_MAP: Record<string, string> = {
+  TRUCK: "货车",
+  LARGE_PASSENGER: "大型客车",
+  SMALL_PASSENGER: "小型客车",
+};
+
+export const VEHICLE_TYPE_OPTIONS = Object.entries(VEHICLE_TYPE_MAP).map(
+  ([_code, name]) => ({
+    label: name,
+    value: name, // 直接使用中文名作为 value，与后端数据匹配
+  })
+);
+
+// --- 车牌省份 (License Plate Province - Full Names) ---
+export const PROVINCE_MAP: Record<string, string> = {
+  京: "北京市",
+  津: "天津市",
+  沪: "上海市",
+  渝: "重庆市",
+  冀: "河北省",
+  豫: "河南省",
+  云: "云南省",
+  辽: "辽宁省",
+  黑: "黑龙江省",
+  湘: "湖南省",
+  皖: "安徽省",
+  鲁: "山东省",
+  新: "新疆维吾尔自治区",
+  苏: "江苏省",
+  浙: "浙江省",
+  赣: "江西省",
+  鄂: "湖北省",
+  桂: "广西壮族自治区",
+  甘: "甘肃省",
+  晋: "山西省",
+  蒙: "内蒙古自治区",
+  陕: "陕西省",
+  吉: "吉林省",
+  闽: "福建省",
+  贵: "贵州省",
+  粤: "广东省",
+  川: "四川省",
+  青: "青海省",
+  藏: "西藏自治区",
+  琼: "海南省",
+  宁: "宁夏回族自治区",
+};
+
+// 辅助函数：输入省份简写，输出完整省份名
+export const formatProvince = (abbr: string): string => {
+  return PROVINCE_MAP[abbr] || abbr;
+};
+
+export const PROVINCE_OPTIONS = Object.entries(PROVINCE_MAP).map(
+  ([abbr, fullName]) => ({
+    label: fullName, // 用户看到的：完整省份名
+    value: abbr, // 实际传值的：简写
+  })
+);
+
+// --- 车辆种类 (Vehicle Category / Fuel Type) ---
+export const FUEL_TYPE_MAP: Record<string, string> = {
+  NEW_ENERGY: "新能源",
+  FUEL: "燃油",
+};
+
+export const FUEL_TYPE_OPTIONS = Object.entries(FUEL_TYPE_MAP).map(
+  ([_code, name]) => ({
+    label: name,
+    value: name, // 直接使用中文名作为 value
+  })
+);

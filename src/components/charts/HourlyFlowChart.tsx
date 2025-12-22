@@ -62,6 +62,7 @@ export const HourlyFlowChart: React.FC<HourlyFlowChartProps> = ({ data }) => {
         type: "line",
         stack: "Total", // (堆叠)
         smooth: true, // (平滑曲线)
+        connenctNulls: false,
         lineStyle: { width: 2, color: "#4A90E2" },
         showSymbol: false,
         areaStyle: {

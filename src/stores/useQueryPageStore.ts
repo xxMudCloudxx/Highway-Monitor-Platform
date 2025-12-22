@@ -24,6 +24,9 @@ interface QueryParams {
   hphm?: string | null;
   startTime?: string | null;
   endTime?: string | null;
+  vehicleType?: string | null; // 车辆类型
+  province?: string | null; // 车牌省份
+  fuelType?: string | null; // 车辆种类
   page: number;
   limit: number;
 }
@@ -98,6 +101,9 @@ export const useQueryPageStore = create<QueryPageState>((set, get) => ({
     hphm: null,
     startTime: null,
     endTime: null,
+    vehicleType: null,
+    province: null,
+    fuelType: null,
   },
   data: {
     total: 0,

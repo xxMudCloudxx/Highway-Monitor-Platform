@@ -32,14 +32,7 @@ const xzqhList = [
 ];
 
 // 3. 车辆类型 (对应 VEHICLE_TYPE_NAME)
-const vehicleTypes = [
-  "小型客车",
-  "中型客车",
-  "大型客车",
-  "货车",
-  "专项作业车",
-  "其他",
-];
+const vehicleTypes = ["货车", "大型客车", "小型客车"];
 
 // 4. 车辆品牌 (对应 CLPPXH)
 const vehicleBrands = [
@@ -54,6 +47,23 @@ const vehicleBrands = [
   "吉利",
   "五菱",
 ];
+
+// 5. 车牌省份简写 (用于生成车牌和过滤)
+const provinceAbbrs = [
+  "京",
+  "津",
+  "沪",
+  "苏",
+  "浙",
+  "皖",
+  "鲁",
+  "豫",
+  "粤",
+  "川",
+];
+
+// 6. 车辆种类/燃料类型
+const fuelTypes = ["新能源", "燃油"];
 
 export default [
   // ==========================================
@@ -78,13 +88,26 @@ export default [
                 // 从行政区列表中随机取一个
                 XZQHMC: () => Mock.Random.pick(xzqhList),
                 KKMC: () => Mock.Random.pick(kkmcList),
-                // 模拟车牌: 苏C + 5位随机字符
-                HPHM: /苏C[A-Z0-9]{5}/,
+                // 模拟车牌: 随机省份 + 城市代码 + 5位随机字符
+                HPHM: () => {
+                  const province = Mock.Random.pick(provinceAbbrs);
+                  return `${province}${Mock.Random.character(
+                    "ABCDEFGHJKLMNPQRSTUVWXYZ"
+                  )}${Mock.Random.string("upper", 0, 1)}${Mock.Random.string(
+                    "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ",
+                    4,
+                    5
+                  )}`;
+                },
+                // 车牌省份 (简写)
+                PROVINCE: () => Mock.Random.pick(provinceAbbrs),
                 "CLLX|1": ["K33", "K32", "H12", "M11"],
                 GCSJ: "@datetime('yyyy-MM-dd HH:mm:ss')",
                 // 随机增加一些额外字段用于测试
                 VEHICLE_TYPE_NAME: () => Mock.Random.pick(vehicleTypes),
                 CLPPXH: () => Mock.Random.pick(vehicleBrands),
+                // 车辆种类/燃料类型
+                FUEL_TYPE: () => Mock.Random.pick(fuelTypes),
                 CPFSF: "",
               },
             ],
