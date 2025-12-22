@@ -139,6 +139,7 @@ export const QueryPage = () => {
     fuelType?: string;
   }) => {
     const { kkmc, hphm, timeRange, vehicleType, province, fuelType } = values;
+    console.log(timeRange);
 
     let startTime = null;
     let endTime = null;
