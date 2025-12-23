@@ -5,6 +5,7 @@ import { viteMockServe } from "vite-plugin-mock";
 import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
+  base: "/Highway-Monitor-Platform/", // GitHub Pages 部署路径
   plugins: [
     react(),
     tailwindcss(),
