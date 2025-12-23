@@ -104,14 +104,12 @@ export const DataScreen = () => {
           <Panel title="车辆来源分布" className="flex-2">
             <SourceMapChart data={{ districts: mapData, stations: kkmcRank }} />
           </Panel>
-          <div className="flex flex-row flex-1">
-            <Panel title="实时套牌车告警" className="flex-1">
-              <RealtimeWarningList />
-            </Panel>
-            {/* <Panel title="未来流量预测 (API 6 mock)" className="flex-1">
+          <Panel title="实时套牌车告警" className="flex-1">
+            <RealtimeWarningList />
+          </Panel>
+          {/* <Panel title="未来流量预测 (API 6 mock)" className="flex-1">
               <PredictionCard />
             </Panel> */}
-          </div>
         </div>
 
         {/* --- 右侧栏 (col-span-1) ---

@@ -22,7 +22,7 @@ export const RealtimeWarningList = () => {
     // 1. 设置固定高度 (如 h-[400px])
     // 2. 移除 animate-scroll-y (如果改为手动滚动/溢出显示)
     // 3. 增加 custom-scrollbar 样式 (需在 index.css 定义)
-    <div className="w-full h-[420px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
+    <div className="w-full h-[240px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar">
       <div className="flex flex-col gap-2">
         {realtimeWarnings.map((warning, index) => (
           <div
